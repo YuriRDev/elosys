@@ -19,6 +19,36 @@ def test_normalize_handle_variants():
     assert x_posts.normalize_handle("https://instagram.com/foo") is None
     assert x_posts.normalize_handle(None) is None
 
+    # links legados com hashbang
+    assert x_posts.normalize_handle("https://twitter.com/#!/deputado_x") == "deputado_x"
+    assert x_posts.normalize_handle("http://x.com/#!/@senador_y") == "senador_y"
+
+    # links de intent/follow com screen_name
+    assert x_posts.normalize_handle("https://twitter.com/intent/user?screen_name=adriventurasp") == "adriventurasp"
+    assert x_posts.normalize_handle("https://x.com/intent/follow?screen_name=@draalehaber") == "draalehaber"
+
+    # links de tweet ou status colados pelo candidato
+    assert x_posts.normalize_handle("https://x.com/fulano/status/1800000000000000001") == "fulano"
+    assert x_posts.normalize_handle("https://twitter.com/fulano/statuses/1800000000000000001?s=20") == "fulano"
+
+    # declaracao apenas com @usuario
+    assert x_posts.normalize_handle("@tabataamaralsp") == "tabataamaralsp"
+
+    # subdominios mobile e maiusculas
+    assert x_posts.normalize_handle("mobile.twitter.com/deputado_z") == "deputado_z"
+    assert x_posts.normalize_handle("www.x.com/@deputado_w") == "deputado_w"
+    assert x_posts.normalize_handle("X.COM/ALCEU_ALCEUMOREIRA") == "alceu_alceumoreira"
+
+    # espacos e caracteres invisiveis de copy-paste
+    assert x_posts.normalize_handle("  https://x.com/fulano\u200b  ") == "fulano"
+    assert x_posts.normalize_handle("<https://twitter.com/fulano/>") == "fulano"
+
+    # rotas reservadas e nomes invalidos
+    assert x_posts.normalize_handle("https://twitter.com/explore") is None
+    assert x_posts.normalize_handle("https://twitter.com/search?q=tse") is None
+    assert x_posts.normalize_handle("https://x.com/123456789") is None
+    assert x_posts.normalize_handle("https://evil.com/twitter.com/fulano") is None
+
 
 def test_lexicon_is_big_and_weighted():
     terms = lexicon.all_terms()
