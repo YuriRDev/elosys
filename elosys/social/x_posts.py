@@ -22,11 +22,26 @@ DEFAULT_MIN_WEIGHT = "baixa"
 DEFAULT_BATCH_SIZE = 10
 DEFAULT_WORKERS = 4
 
-_HANDLE_RE = re.compile(r"(?:twitter\.com(?:\.br)?|x\.com)/@?([A-Za-z0-9_]{1,15})", re.I)
+
 _RESERVED = {
-    "home", "share", "intent", "i", "hashtag", "search", "explore", "notifications",
-    "messages", "settings", "compose", "login", "signup", "about", "tos", "privacy",
+    "about", "account", "analytics", "bookmarks", "compose", "developer",
+    "download", "explore", "hashtag", "help", "home", "i", "intent", "jobs",
+    "lists", "login", "messages", "notifications", "privacy", "rules", "search",
+    "settings", "share", "signup", "tos", "verified",
 }
+
+_INTENT_RE = re.compile(
+    r"(?:^|https?://(?:[a-z0-9_\-]+\.)?)(?:twitter\.com(?:\.br)?|x\.com)/intent/(?:user|follow|profile)[^?]*\?[^#]*\bscreen_name=@?([A-Za-z0-9_]{1,15})(?=[^A-Za-z0-9_]|$)",
+    re.I,
+)
+
+_HANDLE_RE = re.compile(
+    r"(?:^|(?:https?://)?(?:[a-z0-9_\-]+\.)?)(?:twitter\.com(?:\.br)?|x\.com)/(?:#!/)?@?([A-Za-z0-9_]{1,15})(?=[^A-Za-z0-9_]|$)",
+    re.I,
+)
+
+_PURE_HANDLE_RE = re.compile(r"^@([A-Za-z0-9_]{1,15})$")
+
 
 _SCOPES: dict[str, str] = {
     "federal": "(ph.office LIKE '%DEPUTADO FEDERAL%' OR ph.office LIKE '%SENADOR%')",
@@ -64,12 +79,33 @@ def _compile_lexicon() -> list[tuple[str, re.Pattern]]:
 def normalize_handle(raw: str | None) -> str | None:
     if not raw:
         return None
-    m = _HANDLE_RE.search(raw.strip())
+
+    # limpa espacos, quebras, caracteres invisiveis unicode e aspas
+    clean = re.sub(r"[\u200b-\u200d\ufeff\xa0\s'\"<>`]", "", raw)
+    if not clean:
+        return None
+
+    # declaracoes feitas apenas com @usuario
+    pure = _PURE_HANDLE_RE.match(clean)
+    if pure:
+        h = pure.group(1).lower()
+        return None if h in _RESERVED or h.isdigit() else h
+
+    # links de intent/follow com o screen_name na querystring
+    intent = _INTENT_RE.search(clean)
+    if intent:
+        h = intent.group(1).lower()
+        return None if h in _RESERVED or h.isdigit() else h
+
+    # urls comuns do twitter/x, com subdominios, hashbang legado ou link de tweet
+    m = _HANDLE_RE.search(clean)
     if not m:
         return None
+
     h = m.group(1).lower()
     if h in _RESERVED or h.isdigit():
         return None
+
     return h
 
 
@@ -335,5 +371,8 @@ if __name__ == "__main__":
         "https://x.com/adriana_accorsi?s=21&t=abc", "https://twitter.com/@motta_afonso",
         "http://www.twitter.com.br/draalehaber", "X.COM/ALCEU_ALCEUMOREIRA",
         "https://twitter.com/home", "https://instagram.com/foo",
+        "https://twitter.com/#!/deputado_x", "@tabataamaralsp",
+        "https://twitter.com/intent/user?screen_name=adriventurasp",
+        "https://x.com/fulano/status/1800000000000000001",
     ]:
-        print(f"{u:55} -> {normalize_handle(u)}")
+        print(f"{u:60} -> {normalize_handle(u)}")
