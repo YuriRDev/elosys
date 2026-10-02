@@ -1,6 +1,7 @@
 import { db, hasTable } from "./db";
 import { digitsOnly, normalizeName } from "./normalize";
 
+
 export type Provenance = {
   sourceName: string;
   agency: string;
@@ -11,6 +12,7 @@ export type Provenance = {
   parserName: string;
   parserVersion: string;
 };
+
 
 const PROVENANCE_JOIN = `
   JOIN parse pa ON pa.id = t.provenance_id
@@ -29,6 +31,7 @@ const PROVENANCE_COLUMNS = `
   pa.parser_version AS srcParserVersion
 `;
 
+
 function pickProvenance(row: Record<string, unknown>): Provenance {
   return {
     sourceName: row.srcSourceName as string,
@@ -41,6 +44,7 @@ function pickProvenance(row: Record<string, unknown>): Provenance {
     parserVersion: row.srcParserVersion as string,
   };
 }
+
 
 export type SearchResult =
   | {
@@ -62,6 +66,7 @@ export type SearchResult =
       cpf: string;
       canonicalName: string;
     };
+
 
 export function searchPeople(rawQuery: string, limit = 25): SearchResult[] {
   const query = rawQuery.trim();
@@ -155,6 +160,7 @@ export function searchPeople(rawQuery: string, limit = 25): SearchResult[] {
   return [...candidates, ...persons];
 }
 
+
 export type Person = {
   id: number;
   cpf: string | null;
@@ -162,6 +168,7 @@ export type Person = {
   voterId: string | null;
   canonicalName: string | null;
 };
+
 
 export type Candidacy = {
   id: number;
@@ -190,6 +197,7 @@ export type Candidacy = {
   provenance: Provenance;
 };
 
+
 export type CampaignOrg = {
   id: number;
   cnpj: string;
@@ -200,6 +208,7 @@ export type CampaignOrg = {
   provenance: Provenance;
 };
 
+
 export type SocialMediaLink = {
   id: number;
   year: number;
@@ -208,6 +217,7 @@ export type SocialMediaLink = {
   state: string | null;
   provenance: Provenance;
 };
+
 
 export type DeclaredAsset = {
   id: number;
@@ -219,7 +229,9 @@ export type DeclaredAsset = {
   provenance: Provenance;
 };
 
+
 export type DeclaredAssetsYearSummary = { year: number; totalCents: number; count: number };
+
 
 export type FinanceSummary = {
   donationsCount: number;
@@ -231,6 +243,7 @@ export type FinanceSummary = {
   electoralFundCount: number;
 };
 
+
 export type CycleNode = {
   cpfCnpj: string;
   label: string;
@@ -238,6 +251,7 @@ export type CycleNode = {
   personId: number | null;
   photoUrl: string | null;
 };
+
 
 // The rule explanation is the only complete ordered record of cycle members (signal_actor drops some)
 const CYCLE_CHAIN_RE = /(\d{11}|\d{14}) \(([^)]*)\)/g;
@@ -264,6 +278,7 @@ function parseCycleChain(explanation: string): CycleNode[] {
   return parsed;
 }
 
+
 // Per-edge amounts aren't stored on the signal; re-derive them from donations/expenses
 export function getCycleEdgeAmounts(nodes: CycleNode[]): number[] {
   const n = nodes.length;
@@ -288,6 +303,7 @@ export function getCycleEdgeAmounts(nodes: CycleNode[]): number[] {
   });
 }
 
+
 export type Signal = {
   id: number;
   type: string;
@@ -310,6 +326,7 @@ export type Signal = {
   aiReview: AiReviewBrief | null;
 };
 
+
 export type PersonHeader = {
   person: Person;
   latestCandidacy: { year: number; office: string | null; partyAbbr: string | null; state: string | null } | null;
@@ -317,6 +334,7 @@ export type PersonHeader = {
   signalsCount: number;
   provenance: Provenance | null;
 };
+
 
 export function getPersonHeader(personId: number): PersonHeader | null {
   const person = db()
@@ -363,6 +381,7 @@ export function getPersonHeader(personId: number): PersonHeader | null {
   };
 }
 
+
 export function getPersonPhotoUrl(personId: number): string | null {
   if (!hasTable("candidate_photo")) return null;
   const row = db()
@@ -370,6 +389,7 @@ export function getPersonPhotoUrl(personId: number): string | null {
     .get(personId) as { photoUrl: string } | undefined;
   return row?.photoUrl ?? null;
 }
+
 
 export function getPersonPhotoProvenance(personId: number): Provenance | null {
   if (!hasTable("candidate_photo")) return null;
@@ -381,6 +401,7 @@ export function getPersonPhotoProvenance(personId: number): Provenance | null {
     .get(personId) as Record<string, unknown> | undefined;
   return row ? pickProvenance(row) : null;
 }
+
 
 function batchPhotoUrls(personIds: number[]): Map<number, string> {
   const out = new Map<number, string>();
@@ -396,6 +417,7 @@ function batchPhotoUrls(personIds: number[]): Map<number, string> {
   for (const r of rows) out.set(r.personId, r.photoUrl);
   return out;
 }
+
 
 export function getPersonCandidacies(personId: number): Candidacy[] {
   const rows = db()
@@ -446,6 +468,7 @@ export function getPersonCandidacies(personId: number): Candidacy[] {
   }));
 }
 
+
 export function getPersonCampaignOrgs(personId: number): CampaignOrg[] {
   const rows = db()
     .prepare(
@@ -469,6 +492,7 @@ export function getPersonCampaignOrgs(personId: number): CampaignOrg[] {
   }));
 }
 
+
 export function getPersonSocialMedia(personId: number): SocialMediaLink[] {
   const rows = db()
     .prepare(
@@ -490,6 +514,7 @@ export function getPersonSocialMedia(personId: number): SocialMediaLink[] {
     provenance: pickProvenance(r),
   }));
 }
+
 
 export function getPersonAssets(
   personId: number
@@ -529,6 +554,7 @@ export function getPersonAssets(
   };
 }
 
+
 export type ParliamentaryEarmark = {
   id: number;
   earmarkCode: string;
@@ -543,6 +569,7 @@ export type ParliamentaryEarmark = {
   paidCents: number | null;
   provenance: Provenance;
 };
+
 
 export function getPersonEarmarks(
   personId: number
@@ -586,6 +613,7 @@ export function getPersonEarmarks(
   };
 }
 
+
 export type CompanyEarmark = {
   earmarkCode: string;
   earmarkYear: number | null;
@@ -596,6 +624,7 @@ export type CompanyEarmark = {
   state: string | null;
   municipality: string | null;
 };
+
 
 export function getCompanyEarmarks(cnpj: string): { earmarks: CompanyEarmark[]; totalCents: number } {
   if (!hasTable("parliamentary_earmark_beneficiary")) return { earmarks: [], totalCents: 0 };
@@ -636,6 +665,7 @@ export function getCompanyEarmarks(cnpj: string): { earmarks: CompanyEarmark[]; 
   return { earmarks, totalCents: earmarks.reduce((s, e) => s + e.amountCents, 0) };
 }
 
+
 export type EarmarkPaymentRow = {
   earmarkCode: string;
   year: number | null;
@@ -647,9 +677,11 @@ export type EarmarkPaymentRow = {
   amountCents: number;
 };
 
+
 export type EarmarkPaymentPage = { rows: EarmarkPaymentRow[]; total: number };
 
 export const EARMARK_PAGE_SIZE = 50;
+
 
 export function getEarmarkPayments(opts: {
   page?: number;
@@ -728,6 +760,7 @@ export function getEarmarkPayments(opts: {
   };
 }
 
+
 export function getPersonFinance(personId: number, year?: number): FinanceSummary {
   const yearClause = year != null ? " AND t.year = ?" : "";
   const yearArgs = year != null ? [year] : [];
@@ -776,6 +809,7 @@ export function getPersonFinance(personId: number, year?: number): FinanceSummar
     electoralFundCount: electoralFundAgg.n,
   };
 }
+
 
 export function getPersonSignals(personId: number): { signals: Signal[]; signalsCount: number } {
   const signalRows = db()
@@ -878,6 +912,7 @@ export function getPersonSignals(personId: number): { signals: Signal[]; signals
   };
 }
 
+
 export type TopSupplier = {
   cnpj: string;
   name: string;
@@ -885,6 +920,7 @@ export type TopSupplier = {
   paymentCount: number;
   candidacyCount: number;
 };
+
 
 let cachedExpenseYears: number[] | null = null;
 
@@ -897,6 +933,7 @@ export function getExpenseYears(): number[] {
   return cachedExpenseYears;
 }
 
+
 let cachedAssetYears: number[] | null = null;
 
 export function getAssetYears(): number[] {
@@ -907,6 +944,7 @@ export function getAssetYears(): number[] {
   cachedAssetYears = rows.map((r) => r.year);
   return cachedAssetYears;
 }
+
 
 export type AssetsRankingRow = {
   personId: number;
@@ -919,6 +957,7 @@ export type AssetsRankingRow = {
   year: number | null;
   photoUrl: string | null;
 };
+
 
 export type AssetsRankingPage = { rows: AssetsRankingRow[]; total: number };
 
@@ -997,6 +1036,7 @@ export function getAssetsRanking(opts: {
   };
 }
 
+
 export type AssetsGrowthRow = {
   personId: number;
   name: string | null;
@@ -1012,6 +1052,7 @@ export type AssetsGrowthRow = {
   growthPct: number | null;
   photoUrl: string | null;
 };
+
 
 export type AssetsGrowthPage = { rows: AssetsGrowthRow[]; total: number };
 
@@ -1098,31 +1139,69 @@ export function getAssetsGrowthRanking(opts: {
   };
 }
 
+
+const topSuppliersCache = new Map<string, TopSupplier[]>();
+
 export function getTopSuppliers(year: number | null, limit = 10): TopSupplier[] {
+  const cacheKey = `${year ?? "all"}:${limit}`;
+  const cached = topSuppliersCache.get(cacheKey);
+  if (cached) return cached;
+
   const sql = `
+    WITH top_ranked AS (
+      SELECT
+        supplier_cpf_cnpj AS cnpj,
+        sum(amount_cents) AS totalCents,
+        count(*) AS paymentCount
+      FROM campaign_expense
+      WHERE supplier_company_id IS NOT NULL
+        ${year != null ? "AND year = ?" : ""}
+      GROUP BY supplier_cpf_cnpj
+      ORDER BY totalCents DESC
+      LIMIT ?
+    )
     SELECT
-      supplier_cpf_cnpj AS cnpj,
-      max(coalesce(supplier_name_rfb, supplier_name)) AS name,
-      sum(amount_cents) AS totalCents,
-      count(*) AS paymentCount,
-      count(DISTINCT tse_candidacy_id) AS candidacyCount
-    FROM campaign_expense
-    WHERE supplier_company_id IS NOT NULL
-      ${year != null ? "AND year = ?" : ""}
-    GROUP BY supplier_cpf_cnpj
-    ORDER BY totalCents DESC
-    LIMIT ?
+      tr.cnpj,
+      coalesce(
+        cr.legal_name,
+        c.legal_name,
+        (
+          SELECT coalesce(ce.supplier_name_rfb, ce.supplier_name)
+          FROM campaign_expense ce
+          WHERE ce.supplier_cpf_cnpj = tr.cnpj
+            AND (ce.supplier_name_rfb IS NOT NULL OR ce.supplier_name IS NOT NULL)
+          LIMIT 1
+        ),
+        '(nome não disponível)'
+      ) AS name,
+      tr.totalCents,
+      tr.paymentCount,
+      (
+        SELECT count(DISTINCT ce.tse_candidacy_id)
+        FROM campaign_expense ce
+        WHERE ce.supplier_cpf_cnpj = tr.cnpj
+          ${year != null ? "AND ce.year = ?" : ""}
+      ) AS candidacyCount
+    FROM top_ranked tr
+    LEFT JOIN companies c ON c.cnpj = tr.cnpj
+    LEFT JOIN company_registry cr ON cr.company_id = c.id
+    ORDER BY tr.totalCents DESC
   `;
   const params = year != null ? [year, limit] : [limit];
   const rows = db().prepare(sql).all(...params) as Array<Record<string, unknown>>;
-  return rows.map((r) => ({
+
+  const suppliers = rows.map((r) => ({
     cnpj: r.cnpj as string,
     name: (r.name as string) ?? "(nome não disponível)",
     totalCents: r.totalCents as number,
     paymentCount: r.paymentCount as number,
     candidacyCount: r.candidacyCount as number,
   }));
+
+  topSuppliersCache.set(cacheKey, suppliers);
+  return suppliers;
 }
+
 
 export type EntitySanction = {
   id: number;
@@ -1135,6 +1214,7 @@ export type EntitySanction = {
   agencySphere: string | null;
   provenance: Provenance;
 };
+
 
 export type CompanyRegistry = {
   legalName: string | null;
@@ -1150,12 +1230,14 @@ export type CompanyRegistry = {
   provenance: Provenance;
 };
 
+
 export type CompanyPartner = {
   id: number;
   partnerName: string;
   role: string | null;
   entryDate: string | null;
 };
+
 
 export type EntityProfile = {
   cpfCnpj: string;
@@ -1169,6 +1251,7 @@ export type EntityProfile = {
   paymentsReceivedTotal: { count: number; totalCents: number };
   sanctions: EntitySanction[];
 };
+
 
 export function candidatePersonId(cpfCnpj: string): number | null {
   const digits = digitsOnly(cpfCnpj);
@@ -1184,6 +1267,7 @@ export function candidatePersonId(cpfCnpj: string): number | null {
           .get(digits) as { id: number } | undefined);
   return row?.id ?? null;
 }
+
 
 export function getEntityProfile(cpfCnpj: string, opts: { year?: number } = {}): EntityProfile | null {
   const { year } = opts;
@@ -1319,6 +1403,7 @@ export function getEntityProfile(cpfCnpj: string, opts: { year?: number } = {}):
   };
 }
 
+
 export type FinanceRow = {
   id: number;
   year: number;
@@ -1335,11 +1420,13 @@ export type FinanceRow = {
   provenance: Provenance;
 };
 
+
 export type FinancePage = { rows: FinanceRow[]; total: number; pageSize: number };
 
 export const FINANCE_PAGE_SIZE = 25;
 
 export type FinanceSort = "amount" | "paid" | "year" | "date" | "name";
+
 
 export type FinanceQuery = {
   scope: "candidate" | "entity";
@@ -1365,6 +1452,7 @@ const FINANCE_SORT_COL: Record<FinanceSort, string> = {
   date: "date",
   name: "counterpartyName",
 };
+
 
 export function getFinancePage(params: FinanceQuery): FinancePage {
   const page = Math.max(1, Math.floor(params.page ?? 1));
@@ -1500,12 +1588,14 @@ export function getFinancePage(params: FinanceQuery): FinancePage {
   };
 }
 
+
 export type GraphSearchResult = {
   type: "person" | "company";
   cpfCnpj: string;
   label: string;
   sublabel: string | null;
 };
+
 
 export function searchEntities(rawQuery: string, limit = 15): GraphSearchResult[] {
   const query = rawQuery.trim();
@@ -1566,13 +1656,16 @@ export function searchEntities(rawQuery: string, limit = 15): GraphSearchResult[
   ].slice(0, limit);
 }
 
+
 function formatCnpjLocal(cnpj: string): string {
   return cnpj.length === 14
     ? `${cnpj.slice(0, 2)}.${cnpj.slice(2, 5)}.${cnpj.slice(5, 8)}/${cnpj.slice(8, 12)}-${cnpj.slice(12)}`
     : cnpj;
 }
 
+
 export type GraphNodeKind = "politician" | "donor" | "supplier" | "sanctioned" | "company" | "person" | "self";
+
 
 export type GraphNodeInfo = {
   cpfCnpj: string;
@@ -1585,7 +1678,9 @@ export type GraphNodeInfo = {
   photoUrl: string | null;
 };
 
+
 export type GraphEdgeKind = "donation" | "payment";
+
 
 export type GraphEdge = {
   source: string; // cpfCnpj (the donor, or the politician who paid)
@@ -1594,6 +1689,7 @@ export type GraphEdge = {
   amountCents: number;
   count: number;
 };
+
 
 function lookupNodes(
   rawIds: string[],
@@ -1688,6 +1784,7 @@ function lookupNodes(
   return nodeById;
 }
 
+
 // One money edge touching `anchor`; self-financing rows are excluded in SQL
 type IncidentRow = {
   anchor: string;
@@ -1697,6 +1794,7 @@ type IncidentRow = {
   n: number;
   anchorIsSource: 0 | 1;
 };
+
 
 function incidentEdges(anchorIds: string[]): IncidentRow[] {
   if (anchorIds.length === 0) return [];
@@ -1734,6 +1832,7 @@ function incidentEdges(anchorIds: string[]): IncidentRow[] {
   for (let i = 0; i < 4; i++) params.push(...anchorIds);
   return db().prepare(sql).all(...params) as IncidentRow[];
 }
+
 
 type GraphIdentity = { canonical: string; name: string | null; aliases: string[] };
 
@@ -1788,10 +1887,12 @@ function getGraphIdentity(ids: string[]): Map<string, GraphIdentity> {
   return out;
 }
 
+
 function incidentToEdge(r: IncidentRow): GraphEdge {
   const [source, target] = r.anchorIsSource ? [r.anchor, r.other] : [r.other, r.anchor];
   return { source, target, kind: r.kind, amountCents: r.amountCents, count: r.n };
 }
+
 
 export function getGraphPaths(
   newIdRaw: string, existingIdsRaw: string[]
@@ -1862,6 +1963,7 @@ export function getGraphPaths(
   return { nodes: [...nodeById.values()], edges: deduped };
 }
 
+
 export function resolveGraphNode(cpfCnpj: string): GraphNodeInfo | null {
   const digits = digitsOnly(cpfCnpj);
   if (digits.length !== 11 && digits.length !== 14) return null;
@@ -1874,6 +1976,7 @@ export function resolveGraphNode(cpfCnpj: string): GraphNodeInfo | null {
   }
   return node;
 }
+
 
 export function getGraphNodeNetwork(
   rawId: string, limit = 400
@@ -1917,13 +2020,16 @@ export function getGraphNodeNetwork(
   return { nodes: [...nodeById.values()], edges, truncated };
 }
 
+
 export type CircularDonationActor = {
   cpfCnpj: string;
   label: string;
   type: "person" | "company";
 };
 
+
 export type AiVerdict = "bizarro" | "plausivel" | "inconclusivo";
+
 
 export type AiReviewBrief = {
   verdict: AiVerdict;
@@ -1931,6 +2037,7 @@ export type AiReviewBrief = {
   explanation: string;
   model: string;
 };
+
 
 export type CircularDonationSignal = {
   id: number;
@@ -1942,7 +2049,9 @@ export type CircularDonationSignal = {
   aiReview: AiReviewBrief | null;
 };
 
+
 export type CircularDonationSort = "severity" | "amount" | "path_length";
+
 
 export type CircularDonationSummary = {
   total: number;
@@ -1953,6 +2062,7 @@ export type CircularDonationSummary = {
 };
 
 const CIRCULAR_RULE = "circular_donations";
+
 
 export function getCircularDonationSummary(): CircularDonationSummary {
   const bySeverity = Object.fromEntries(
@@ -1989,11 +2099,13 @@ export function getCircularDonationSummary(): CircularDonationSummary {
   };
 }
 
+
 const SORT_CLAUSE: Record<CircularDonationSort, string> = {
   severity: "CASE s.severity WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END, s.id",
   amount: "coalesce(s.amount_cents, 0) DESC, s.id",
   path_length: "coalesce(s.path_length, 0) ASC, coalesce(s.amount_cents, 0) DESC, s.id",
 };
+
 
 export function getCircularDonationSignals(opts: {
   severity?: "high" | "medium" | "low";
@@ -2065,6 +2177,7 @@ export function getCircularDonationSignals(opts: {
   }));
 }
 
+
 export type AiReviewRow = {
   signalId: number;
   rule: string;
@@ -2085,6 +2198,7 @@ const RULE_LABEL: Record<string, string> = {
   disproportionate_expense: "despesa desproporcional",
 };
 
+
 export function getAiReviewSummary(): { total: number; byVerdict: Record<string, number>; model: string | null } {
   const byVerdict = Object.fromEntries(
     (
@@ -2104,6 +2218,7 @@ export function getAiReviewSummary(): { total: number; byVerdict: Record<string,
 
 const VERDICT_ORDER = "CASE ar.verdict WHEN 'bizarro' THEN 0 WHEN 'inconclusivo' THEN 1 ELSE 2 END";
 
+
 export function getAiReviewCount(opts: { verdict?: AiVerdict; rule?: string }): number {
   return (
     db()
@@ -2116,6 +2231,7 @@ export function getAiReviewCount(opts: { verdict?: AiVerdict; rule?: string }): 
       .get(opts.verdict ?? null, opts.verdict ?? null, opts.rule ?? null, opts.rule ?? null) as { n: number }
   ).n;
 }
+
 
 export function getAiReviews(opts: {
   verdict?: AiVerdict;
@@ -2195,6 +2311,7 @@ export function getAiReviews(opts: {
   });
 }
 
+
 export type PoliticianNetworkNode = {
   personId: number;
   label: string;
@@ -2202,10 +2319,12 @@ export type PoliticianNetworkNode = {
   photoUrl: string | null;
 };
 
+
 export type PoliticianNetworkBranch = {
   node: PoliticianNetworkNode;
   children: PoliticianNetworkNode[]; // depth 2
 };
+
 
 export type PoliticianDonationNetwork = {
   donatedTo: PoliticianNetworkBranch[]; // right side, depth 1 + 2
@@ -2213,6 +2332,7 @@ export type PoliticianDonationNetwork = {
 };
 
 const MAX_PER_LEVEL = 6;
+
 
 function politicianDonationEdges(
   personId: number, direction: "donated_to" | "received_from"
@@ -2237,6 +2357,7 @@ function politicianDonationEdges(
   >;
   return rows.map((r) => ({ ...r, photoUrl: null }));
 }
+
 
 export function getPoliticianDonationNetwork(personId: number): PoliticianDonationNetwork {
   const build = (direction: "donated_to" | "received_from"): PoliticianNetworkBranch[] =>
@@ -2264,6 +2385,7 @@ export function getPoliticianDonationNetwork(personId: number): PoliticianDonati
   return { donatedTo, receivedFrom };
 }
 
+
 export type SupplierPartnerRow = {
   personId: number;
   personName: string | null;
@@ -2278,6 +2400,7 @@ export type SupplierPartnerRow = {
 };
 
 export type SupplierPartnerFilter = "all" | "self" | "others";
+
 
 export function getSupplierPartnerSummary(): {
   total: number;
@@ -2297,6 +2420,7 @@ export function getSupplierPartnerSummary(): {
   return { total: row.total, self: row.self, others: row.total - row.self, totalCents: row.totalCents };
 }
 
+
 export function getSupplierPartnerCount(opts: { filter?: SupplierPartnerFilter; q?: string }): number {
   if (!hasTable("candidate_supplier_partner")) return 0;
   const { where, args } = supplierPartnerWhere(opts);
@@ -2313,6 +2437,7 @@ export function getSupplierPartnerCount(opts: { filter?: SupplierPartnerFilter; 
   ).n;
 }
 
+
 function supplierPartnerWhere(opts: { filter?: SupplierPartnerFilter; q?: string }): {
   where: string;
   args: unknown[];
@@ -2328,6 +2453,7 @@ function supplierPartnerWhere(opts: { filter?: SupplierPartnerFilter; q?: string
   }
   return { where: clauses.length ? `WHERE ${clauses.join(" AND ")}` : "", args };
 }
+
 
 export function getSupplierPartners(opts: {
   filter?: SupplierPartnerFilter;
@@ -2369,6 +2495,7 @@ export function getSupplierPartners(opts: {
   }));
 }
 
+
 export const DISCOURSE_GROUP_CATEGORIES = [
   "lgbtfobia", "racismo", "misoginia", "capacitismo", "xenofobia", "regionalismo",
   "aporofobia", "gordofobia", "antissemitismo", "intolerancia_religiosa", "etarismo_saude",
@@ -2378,6 +2505,7 @@ export type DiscourseCategory =
   | (typeof DISCOURSE_GROUP_CATEGORIES)[number]
   | (typeof DISCOURSE_OTHER_CATEGORIES)[number];
 export type DiscourseSeverity = "high" | "medium" | "low";
+
 
 export type DiscourseSignal = {
   postId: number;
@@ -2397,6 +2525,7 @@ export type DiscourseSignal = {
   explanation: string | null;
   replyToHandle: string | null;
 };
+
 
 function discourseWhere(opts: {
   category?: string;
@@ -2442,6 +2571,7 @@ const DISCOURSE_FROM = `
   JOIN social_account a ON a.id = p.social_account_id
   LEFT JOIN people pe ON pe.id = a.person_id`;
 
+
 export function getDiscourseSummary(): {
   reviewed: number;
   total: number;
@@ -2483,6 +2613,7 @@ export function getDiscourseSummary(): {
   return { reviewed, total, accounts, bySeverity, byCategory };
 }
 
+
 export function getDiscourseCount(opts: {
   category?: string;
   severity?: string;
@@ -2499,6 +2630,7 @@ export function getDiscourseCount(opts: {
 }
 
 const DISCOURSE_SEVERITY_RANK = "CASE r.severity WHEN 'high' THEN 0 WHEN 'medium' THEN 1 ELSE 2 END";
+
 
 export function getDiscourseSignals(opts: {
   category?: string;
@@ -2554,6 +2686,7 @@ export function getDiscourseSignals(opts: {
   }));
 }
 
+
 // Keep in sync with CATEGORIES in elosys/rules/disproportionate_expense.py
 const EXPENSE_CATEGORY_SPELLINGS: Record<string, string[]> = {
   CANETA: ["CANETA"],
@@ -2577,6 +2710,7 @@ const EXPENSE_CATEGORY_SPELLINGS: Record<string, string[]> = {
 };
 
 export const EXPENSE_CATEGORIES = Object.keys(EXPENSE_CATEGORY_SPELLINGS);
+
 
 export function getDisproportionateExpenseCount(): number {
   const row = db()
@@ -2606,10 +2740,12 @@ export type ExpenseCategoryRow = {
   peerCount: number;
 };
 
+
 export type ExpenseCategoryPage = { rows: ExpenseCategoryRow[]; total: number };
 
 // Full-table LIKE scan takes tens of seconds; cache per (category, year) since the DB is read-only
 const expenseCategoryRankingCache = new Map<string, Array<Record<string, unknown>>>();
+
 
 export function getExpenseCategoryRanking(opts: {
   /** undefined = all categories */
@@ -2710,6 +2846,7 @@ export function getExpenseCategoryRanking(opts: {
   };
 }
 
+
 export type ExpenseCategoryDetailRow = {
   id: number;
   description: string;
@@ -2717,6 +2854,7 @@ export type ExpenseCategoryDetailRow = {
   year: number;
   provenance: Provenance;
 };
+
 
 export function getPersonCategoryExpenseDetail(
   personId: number,
@@ -2750,6 +2888,7 @@ export function getPersonCategoryExpenseDetail(
     provenance: pickProvenance(r),
   }));
 }
+
 
 function safeJsonArray(s: string | null): string[] {
   if (!s) return [];
