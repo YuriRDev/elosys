@@ -11,7 +11,10 @@ from pathlib import Path
 
 from curl_cffi import CurlError, requests
 
+from .log import get_logger
 from .util import canonical_json, git_commit, now_utc
+
+_log = get_logger("elosys.verify")
 
 _TIMEOUT = 300
 _RETRIES = 4
@@ -180,22 +183,40 @@ def write_manifest(con: sqlite3.Connection, path: str | Path) -> Path:
     return path
 
 
-def verify(con: sqlite3.Connection) -> list[dict]:
-    mismatches: list[dict] = []
-    for c in con.execute(
-        "SELECT id, url, payload_sha256 FROM collection ORDER BY id"
-    ):
+def verify(con: sqlite3.Connection, *, include_api: bool = False,
+           api_delay_seconds: float = 1.0) -> list[dict]:
+    """Re-download every collection and compare its hash; one result per collection.
+
+    status: 'ok' | 'changed' (source now serves different bytes) | 'error' (could not
+    download — says nothing about integrity, retry later). A failed download never
+    aborts the run. Per-item API lookups (source.type = 'api': BrasilAPI, fotoUrl) are
+    skipped unless include_api: re-querying them all at once trips the APIs' rate
+    limits, and they are incremental caches, not the rewrite-only core.
+    """
+    where = "" if include_api else "WHERE s.type <> 'api'"
+    rows = con.execute(
+        "SELECT c.id, s.name AS source, s.type, c.url, c.payload_sha256 "
+        f"FROM collection c JOIN source s ON s.id = c.source_id {where} ORDER BY c.id"  # noqa: S608
+    ).fetchall()
+    results: list[dict] = []
+    for i, c in enumerate(rows, 1):
+        if c["type"] == "api" and i > 1:
+            time.sleep(api_delay_seconds)
+        result = {"collection_id": c["id"], "source": c["source"], "url": c["url"],
+                  "expected": c["payload_sha256"], "got": None, "error": None}
         with tempfile.NamedTemporaryFile(delete=False) as tmp:
             tmp_path = Path(tmp.name)
         try:
             download(c["url"], tmp_path)
-            got, _ = sha256_file(tmp_path)
+            result["got"], _ = sha256_file(tmp_path)
+            result["status"] = "ok" if result["got"] == c["payload_sha256"] else "changed"
+        except (RuntimeError, CurlError, OSError) as e:
+            result["status"], result["error"] = "error", str(e)
         finally:
             tmp_path.unlink(missing_ok=True)
-        if got != c["payload_sha256"]:
-            mismatches.append({"collection_id": c["id"], "url": c["url"],
-                               "expected": c["payload_sha256"], "got": got})
-    return mismatches
+        _log.info("[%d/%d] %-7s %s", i, len(rows), result["status"], c["url"])
+        results.append(result)
+    return results
 
 
 __all__ = [

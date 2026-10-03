@@ -1,43 +1,43 @@
 {
   "years": {
     "2014": {
-      "collection_id": 30,
+      "collection_id": 18,
       "new_assets": 83053,
       "rows": 83053
     },
     "2016": {
-      "collection_id": 31,
+      "collection_id": 19,
       "new_assets": 977510,
       "rows": 977510
     },
     "2018": {
-      "collection_id": 32,
+      "collection_id": 20,
       "new_assets": 93527,
       "rows": 93527
     },
     "2020": {
-      "collection_id": 33,
+      "collection_id": 21,
       "new_assets": 1015279,
       "rows": 1015279
     },
     "2022": {
-      "collection_id": 34,
+      "collection_id": 22,
       "new_assets": 92559,
       "rows": 92559
     },
     "2024": {
-      "collection_id": 35,
-      "new_assets": 911017,
-      "rows": 911017
+      "collection_id": 23,
+      "new_assets": 911162,
+      "rows": 911162
     },
     "2026": {
-      "collection_id": 36,
-      "new_assets": 76774,
-      "rows": 76774
+      "collection_id": 24,
+      "new_assets": 77289,
+      "rows": 77289
     }
   },
-  "assets": 3249719,
-  "candidacies": 1022327,
-  "linked_to_person": 3249717,
-  "total_value_cents": 44551341235148
+  "assets": 3250379,
+  "candidacies": 1022432,
+  "linked_to_person": 3250378,
+  "total_value_cents": 44275685547166
 }

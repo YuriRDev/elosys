@@ -222,13 +222,20 @@ def _manifest(args: argparse.Namespace) -> int:
 def _verify(args: argparse.Namespace) -> int:
     con = connect(args.db)
     try:
-        mismatches = verify(con)
+        results = verify(con, include_api=args.include_api, api_delay_seconds=args.api_delay)
     finally:
         con.close()
-    if mismatches:
-        for m in mismatches:
-            print(f"CHANGED: {m['url']}\n  expected {m['expected']}\n  got      {m['got']}",
-                  file=sys.stderr)
+    changed = [r for r in results if r["status"] == "changed"]
+    errors = [r for r in results if r["status"] == "error"]
+    for r in changed:
+        print(f"CHANGED: {r['url']}\n  expected {r['expected']}\n  got      {r['got']}",
+              file=sys.stderr)
+    for r in errors:
+        print(f"ERROR (not verified, retry later): {r['url']}\n  {r['error']}", file=sys.stderr)
+    log.info("verified %d collections: %d ok, %d changed, %d download errors%s",
+             len(results), len(results) - len(changed) - len(errors), len(changed), len(errors),
+             "" if args.include_api else " (per-item API lookups skipped; use --include-api)")
+    if changed or errors:
         return 1
     log.info("all source files still match the manifest — the build is reproducible")
     return 0
@@ -375,6 +382,10 @@ def main(argv: list[str] | None = None) -> int:
 
     pv = sub.add_parser("verify", help="re-download sources and check hashes against the build")
     pv.add_argument("--db", default="elosys.db")
+    pv.add_argument("--include-api", action="store_true",
+                    help="also re-query per-item API lookups (BrasilAPI CNPJ, fotoUrl); slow, rate-limited")
+    pv.add_argument("--api-delay", type=float, default=1.0,
+                    help="seconds between API re-queries with --include-api (default: 1.0)")
     pv.set_defaults(func=_verify)
 
     args = p.parse_args(argv)

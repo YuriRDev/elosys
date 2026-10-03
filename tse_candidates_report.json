@@ -2,49 +2,49 @@
   "years": {
     "2014": {
       "year": 2014,
-      "collection_id": 16,
+      "collection_id": 1,
       "already_collected": false,
       "staged": 26263
     },
     "2016": {
       "year": 2016,
-      "collection_id": 17,
+      "collection_id": 2,
       "already_collected": false,
       "staged": 498391
     },
     "2018": {
       "year": 2018,
-      "collection_id": 18,
+      "collection_id": 3,
       "already_collected": false,
       "staged": 29287
     },
     "2020": {
       "year": 2020,
-      "collection_id": 19,
+      "collection_id": 4,
       "already_collected": false,
       "staged": 558804
     },
     "2022": {
       "year": 2022,
-      "collection_id": 20,
+      "collection_id": 5,
       "already_collected": false,
       "staged": 29322
     },
     "2024": {
       "year": 2024,
-      "collection_id": 21,
+      "collection_id": 6,
       "already_collected": false,
-      "staged": 463845
+      "staged": 463873
     },
     "2026": {
       "year": 2026,
-      "collection_id": 22,
+      "collection_id": 7,
       "already_collected": false,
-      "staged": 20871
+      "staged": 20988
     }
   },
   "promote": {
-    "promoted": 1626783,
+    "promoted": 1626928,
     "skipped": 0,
     "rejected_cpf": 219,
     "rows_with_cpf_dropped": 425,
