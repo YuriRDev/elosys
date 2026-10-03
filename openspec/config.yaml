@@ -1,0 +1,10 @@
+schema: spec-driven
+context: |
+  Elosys cruza dados públicos brasileiros com proveniência por registro.
+  Backend Python >=3.12; SQLite; frontend Next.js em web/.
+  Decisões canônicas de arquitetura estão em ADs/.
+  Preservar arquitetura, schema e compatibilidade com a base distribuída.
+  Propostas e documentação em português; identificadores em inglês.
+  Fontes, evidências e limitações devem acompanhar os resultados.
+  Testes usam fixtures, sem baixar a base completa ou chamar APIs pagas.
+  Este conjunto formaliza propostas para revisão; implementação ainda não iniciada.
