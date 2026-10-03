@@ -1,14 +1,14 @@
 {
-  "rule_run_id": 4,
-  "nodes": 5350221,
-  "edges": 7658959,
-  "sccs_nontrivial": 7892,
-  "cycles_found": 108400,
-  "hub_branches_skipped": 402986,
-  "signals": 38267,
+  "rule_run_id": 2,
+  "nodes": 5726680,
+  "edges": 8213487,
+  "sccs_nontrivial": 7738,
+  "cycles_found": 109199,
+  "hub_branches_skipped": 473478,
+  "signals": 38851,
   "by_severity": {
-    "high": 10705,
-    "medium": 27562
+    "high": 12908,
+    "medium": 25943
   },
   "params": {
     "max_depth": 5,

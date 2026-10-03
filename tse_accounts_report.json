@@ -1,58 +1,58 @@
 {
   "years": {
     "2018": {
-      "collection_id": 23,
+      "collection_id": 8,
       "new_orgs": 27020,
-      "new_donations": 318775,
-      "new_expenses": 1422464,
+      "new_donations": 318780,
+      "new_expenses": 1422472,
       "new_payments": 1653375,
-      "rows": 329676
+      "rows": 329683
     },
     "2020": {
-      "collection_id": 24,
-      "new_orgs": 533165,
-      "new_donations": 2240744,
-      "new_expenses": 3049432,
-      "new_payments": 3086877,
-      "rows": 2339056
+      "collection_id": 9,
+      "new_orgs": 533169,
+      "new_donations": 2240758,
+      "new_expenses": 3049457,
+      "new_payments": 3086903,
+      "rows": 2339070
     },
     "2022": {
-      "collection_id": 25,
+      "collection_id": 10,
       "new_orgs": 27958,
       "new_donations": 665131,
-      "new_expenses": 1828280,
-      "new_payments": 2411946,
+      "new_expenses": 1828293,
+      "new_payments": 2411963,
       "rows": 674944
     },
     "2024": {
-      "collection_id": 26,
-      "new_orgs": 444873,
-      "new_donations": 1898009,
-      "new_expenses": 3125525,
-      "new_payments": 3719456,
-      "rows": 2040998
+      "collection_id": 11,
+      "new_orgs": 444874,
+      "new_donations": 1898015,
+      "new_expenses": 3125539,
+      "new_payments": 3719479,
+      "rows": 2041006
     },
     "2026": {
-      "collection_id": 27,
-      "new_orgs": 11796,
-      "new_donations": 38563,
-      "new_expenses": 45558,
-      "new_payments": 19214,
-      "rows": 38931
+      "collection_id": 12,
+      "new_orgs": 19184,
+      "new_donations": 151050,
+      "new_expenses": 727178,
+      "new_payments": 589226,
+      "rows": 160497
     }
   },
-  "orgs": 1044812,
-  "companies": 1386277,
-  "donations": 5161222,
-  "expenses": 9471259,
-  "payments": 10890868,
-  "orgs_linked_to_person": 1044812,
-  "donations_linked_to_org": 5161222,
-  "donations_from_known_politician": 2072040,
-  "total_donations_cents": 2671995815413,
-  "expenses_linked_to_org": 9471199,
-  "expenses_to_known_politician": 220373,
-  "total_expenses_cents": 1617880418326,
-  "payments_linked_to_expense": 10890868,
-  "total_payments_cents": 1885111268718
+  "orgs": 1052205,
+  "companies": 1415550,
+  "donations": 5273734,
+  "expenses": 10152939,
+  "payments": 11460946,
+  "orgs_linked_to_person": 1052205,
+  "donations_linked_to_org": 5273734,
+  "donations_from_known_politician": 2090217,
+  "total_donations_cents": 2959140050411,
+  "expenses_linked_to_org": 10152879,
+  "expenses_to_known_politician": 238361,
+  "total_expenses_cents": 1961567273270,
+  "payments_linked_to_expense": 11460946,
+  "total_payments_cents": 2153181392838
 }

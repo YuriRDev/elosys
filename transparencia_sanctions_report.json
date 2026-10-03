@@ -1,20 +1,20 @@
 {
   "registries": {
     "ceis": {
-      "date": "20260904",
-      "collection_id": 28,
-      "new_sanctions": 23738,
-      "rows": 23738
+      "date": "20261002",
+      "collection_id": 25,
+      "new_sanctions": 23739,
+      "rows": 23739
     },
     "cnep": {
-      "date": "20260904",
-      "collection_id": 29,
-      "new_sanctions": 1797,
-      "rows": 1797
+      "date": "20261002",
+      "collection_id": 26,
+      "new_sanctions": 1823,
+      "rows": 1823
     }
   },
-  "sanctions": 25535,
-  "companies": 9822,
-  "linked_to_person": 1124,
-  "linked_to_company": 16257
+  "sanctions": 25562,
+  "companies": 9884,
+  "linked_to_person": 1105,
+  "linked_to_company": 16376
 }
