@@ -45,7 +45,13 @@ imutável, de graça e auditável por terceiros: reescrever o que foi coletado e
 reescrever o histórico público do repo, o que é visível.
 
 - `elosys verify` re-baixa cada URL do manifesto e confere o `payload_sha256`.
-  Lista vazia = o banco é 100% reconstruível a partir das fontes públicas.
+  Classifica cada coleta como `ok`, `changed` (a fonte hoje serve outro conteúdo)
+  ou `error` (download falhou — não diz nada sobre integridade, refaça depois);
+  uma falha de download não interrompe a verificação. Por padrão confere só os
+  arquivos em lote (`source.type = 'csv'`); as consultas item a item às APIs
+  (BrasilAPI, fotoUrl) só entram com `--include-api`, espaçadas por `--api-delay`,
+  porque refazê-las de uma vez estoura o rate limit dessas APIs.
+  Tudo `ok` = o banco é 100% reconstruível a partir das fontes públicas.
 - `run_report.json` (também commitado) registra as decisões do build: linhas por
   ano, CPFs derrubados por ambiguidade e o motivo, colisões puladas.
 - Opcional: commitar também o `sha256` do `.db` gerado, para amarrar "este

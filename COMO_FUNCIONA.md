@@ -433,6 +433,13 @@ provou, sem confiar em nada que o EloSys "disse" — só olhando pros arquivos
 públicos do TSE/Receita/Portal da Transparência — que o banco inteiro é
 reconstruível a partir de fontes oficiais.
 
+O resultado vem por arquivo: `ok`, `changed` (a fonte mudou desde a coleta — comum
+nos arquivos do ano eleitoral corrente, que o TSE republica várias vezes por dia) ou
+`error` (o download falhou; não prova nada, só precisa ser refeito). Por padrão só
+os arquivos em lote são conferidos; as consultas item a item à BrasilAPI e à API de
+fotos entram com `--include-api` (e `--api-delay` entre elas), para não estourar o
+limite de requisições desses serviços.
+
 Outras formas de conferir:
 
 - **O botão "fonte"** em qualquer campo da interface abre um modal com a URL
