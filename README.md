@@ -58,6 +58,12 @@ sha256sum elosys.zip                          # Linux, macOS, Git Bash
 Get-FileHash elosys.zip -Algorithm SHA256     # PowerShell
 ```
 
+O `Get-FileHash` exibe o hash em maiúsculas; o valor é o mesmo, pois hexadecimal não diferencia caixa. Para comparar diretamente (`-eq` é case-insensitive, retorna `True` se íntegro):
+
+```powershell
+(Get-FileHash elosys.zip -Algorithm SHA256).Hash -eq "96fb819b681752250db0c6cdc62566d1773338547daf6ea524edcd4024b16693"
+```
+
 Extraia o arquivo e posicione `elosys.db` na raiz do repositório. O banco já inclui todas as tabelas e o índice de busca por nome de doador e fornecedor.
 
 ### 2. Execução local
