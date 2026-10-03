@@ -55,6 +55,8 @@ def download(url: str, dest: str | Path) -> tuple[int, str | None]:
     dest.parent.mkdir(parents=True, exist_ok=True)
     last_error: Exception | None = None
     for attempt in range(_RETRIES):
+        r = None
+        tmp_path = None
         try:
             r = requests.get(url, stream=True, timeout=_TIMEOUT, headers=_HEADERS,
                              impersonate=_IMPERSONATE)
@@ -68,14 +70,26 @@ def download(url: str, dest: str | Path) -> tuple[int, str | None]:
                     f"file into the tmp dir; the collector will ingest it from there."
                 )
             r.raise_for_status()
-            with open(dest, "wb") as f:
-                for chunk in r.iter_content(1 << 20):
+            # Keep interrupted payloads out of the collector's local-file cache.
+            # The same directory makes replacement atomic on the destination filesystem.
+            with tempfile.NamedTemporaryFile(dir=dest.parent, prefix=".elosys-download-",
+                                             suffix=".part", delete=False) as f:
+                tmp_path = Path(f.name)
+                for chunk in r.iter_content():
                     f.write(chunk)
+            tmp_path.replace(dest)
             return status, r.headers.get("Content-Type")
         except (CurlError, OSError) as e:
             last_error = e
-            if attempt < _RETRIES - 1:
-                time.sleep(_BACKOFF * (2 ** attempt))
+        finally:
+            try:
+                if r is not None:
+                    r.close()
+            finally:
+                if tmp_path is not None:
+                    tmp_path.unlink(missing_ok=True)
+        if attempt < _RETRIES - 1:
+            time.sleep(_BACKOFF * (2 ** attempt))
     raise RuntimeError(f"failed to download {url}: {last_error}")
 
 
